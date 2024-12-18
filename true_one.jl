@@ -7,8 +7,6 @@ using InteractiveUtils
 # ╔═╡ ac9d623a-ba18-11ef-1899-fd42d0defcff
 # ╠═╡ show_logs = false
 begin
-	import Pkg; Pkg.activate()
-	
 	using Agents, Agents.Graphs
 	using Plots, GraphRecipes
 	using Random, StatsBase
