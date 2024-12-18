@@ -7,6 +7,8 @@ using InteractiveUtils
 # ╔═╡ ac9d623a-ba18-11ef-1899-fd42d0defcff
 # ╠═╡ show_logs = false
 begin
+	import Pkg; Pkg.activate()
+	
 	using Agents, Agents.Graphs
 	using Plots, GraphRecipes
 	using Random, StatsBase
@@ -37,7 +39,7 @@ md"""
 begin
 	@agent struct DrinkingCitizen(GraphAgent)
 		team::Int
-		beer_drunked::Rational
+		beer_drunk::Rational
 		beer_in_hands::Rational # between 0 and 3
 		bac_pm::Float64
 
@@ -46,13 +48,13 @@ begin
 	end
 	
 	bac_pm(drunkard::DrinkingCitizen; ac=5.0) = 
-		let volume = 0.5*drunkard.beer_drunked*ac*0.789,
+		let volume = 0.5*drunkard.beer_drunk*ac*0.789,
 			r = drunkard.sex==:male ? 0.68 : 0.55;
 		return volume / (drunkard.weight * r)
 	end
 	
 	bac_pm!(drunkard::DrinkingCitizen; ac=5.0) = 
-		let volume = 0.5*drunkard.beer_drunked*ac*0.789,
+		let volume = 0.5*drunkard.beer_drunk*ac*0.789,
 			r = drunkard.sex==:male ? 0.68 : 0.55;
 		drunkard.bac_pm = volume / (drunkard.weight * r)
 	end
@@ -80,9 +82,9 @@ function model_step!(model)
 	# reanimate dead agents
 	for a in model.agents_in_lava
 		if a.beer_in_hands < 1
-			a.beer_drunked += 1 + a.beer_in_hands
+			a.beer_drunk += 1 + a.beer_in_hands
 		elseif a.beer_in_hands > 3
-			a.beer_drunked += a.beer_in_hands
+			a.beer_drunk += a.beer_in_hands
 		end
 		a.beer_in_hands = 1
 		bac_pm!(a)
@@ -139,7 +141,7 @@ function model_step!(model)
 		move_agent!(agent, (agent.pos % model.field_size) + 1, model)
 
 		# check if player should grab one more pawn
-		if agent.pos % model.num_of_sections == 0
+		if agent.pos % div(model.field_size, model.num_of_sections) == 0
 			if model.num_of_pawns == 0
 				model.num_of_pawns -= 1
 				model.current_player = agent.id
@@ -166,7 +168,7 @@ function model_step!(model)
 			a.beer_in_hands
 		)
 		a.beer_in_hands -= beer
-		a.beer_drunked += beer
+		a.beer_drunk += beer
 		bac_pm!(a)
 		if a.beer_in_hands == 0
 			push!(model.agents_in_lava, a)
@@ -196,7 +198,7 @@ function model_initiation(;
 	num_of_sections=4,
 	num_of_players::Int=8,
 	sex_n_weight::Vector{Pair{Symbol,Int}}=Pair{Symbol,Int}[],
-	beer_drunked::Vector=[],
+	beer_drunk::Vector=[],
 	use_teams::Bool=true,
 	num_of_pawns::Int=40,
 	seed=42,
@@ -214,9 +216,9 @@ function model_initiation(;
 		:scale_function => scale_function
 	)
 	
-	beer_drunked = length(beer_drunked)==num_of_players ? beer_drunked : 
+	beer_drunk = length(beer_drunk)==num_of_players ? beer_drunk : 
 		rand(rng, 1:5, num_of_players)
-	@assert num_of_players == length(sex_n_weight) == length(beer_drunked) "Please, set num of beer drunked, sex and weight for each player"
+	@assert num_of_players == length(sex_n_weight) == length(beer_drunk) "Please, set num of beer drunked, sex and weight for each player"
 	@assert num_of_players < field_size "Field is too small"
 	@assert mod(field_size, num_of_sections) == 0 "Number of sections shold be a divisor of field size"
 
@@ -253,7 +255,7 @@ function model_initiation(;
 	if use_teams
 		for i in 1:num_of_players
 			a = add_agent!(indx[i], model, 
-				teams[i], beer_drunked[i], 1, 0,
+				teams[i], beer_drunk[i], 1, 0,
 				sex_n_weight[i]... 
 			)
 			bac_pm!(a)
@@ -261,7 +263,7 @@ function model_initiation(;
 	else
 		for i in 1:num_of_players
 			a = add_agent!(indx[i], model, 
-				0, beer_drunked[i], 1, 0,
+				0, beer_drunk[i], 1, 0,
 				sex_n_weight[i]... 
 			)
 			bac_pm!(a)
@@ -279,7 +281,7 @@ md"""
 # ╔═╡ f8f5be0f-6c6d-40ed-9bb4-956da3edfc39
 model = model_initiation(;
 	sex_n_weight=rand((:male, :female), 8) .=> rand(50:80, 8),
-	beer_drunked=rand(1:10, 8),
+	beer_drunk=rand(1:10, 8),
 #	scale_function=exp
 )
 
