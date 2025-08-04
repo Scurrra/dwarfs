@@ -11,9 +11,8 @@ md"""
 
 # ╔═╡ 804b7c16-7ddf-401b-a7ff-6f97d5b7a163
 md"""
-## [True One](true_one.html)
-
-Agent-based modeling of the game "True American" from tv series "New Girl".
+> ## [True One](true_one.html)
+> Agent-based modeling of the game "True American" from tv series "New Girl".
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -34,6 +33,6 @@ project_hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
 
 # ╔═╡ Cell order:
 # ╟─7f8d7c48-715a-11f0-2f44-5d9fb8b4207f
-# ╠═804b7c16-7ddf-401b-a7ff-6f97d5b7a163
+# ╟─804b7c16-7ddf-401b-a7ff-6f97d5b7a163
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
